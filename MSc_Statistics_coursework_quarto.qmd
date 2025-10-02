@@ -71,7 +71,7 @@ par(mfrow = c(2, 2))
 
 for (v in vars) {
   plot(penguins$sex, penguins[[v]],
-       xlab = "Sex",
+       xlab = "",
        ylab = gsub("_", " ", v),
        col = c(6, 3))
   abline(h = mean(penguins[[v]], na.rm = TRUE), col = 2, lwd = 2)
@@ -79,6 +79,23 @@ for (v in vars) {
 ```
 
 
+```{r}
+plot(
+ x = penguins$bill_length_mm,
+ y = penguins$body_mass_g,
+ col = penguins$sex,
+ pch = 15 + as.numeric(penguins$sex),
+ main = "Penguin bill length vs body ",
+ xlab = "Bill Length (mm)",
+ ylab = "Body Mass (g)",
+ bty = "n")
+ legend(
+ "bottomright",
+ legend = c("Female", "Male"),
+ pch = 16:18,
+ col = 1:3,
+ bty = "n")
+```
 
 
 ```{r, echo=FALSE}
