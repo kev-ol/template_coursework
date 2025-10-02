@@ -58,7 +58,7 @@ sex_counts <- table(penguins$sex)
 knitr::kable(sex_counts, col.names  = c("Sex", "Count"))
 ```
 
-@sex-counts Shows the number of male and female penguins in the dataset.
+@tbl-sex-counts Shows the number of male and female penguins in the dataset.
 
 
 ```{r, echo=FALSE}
@@ -74,7 +74,6 @@ knitr::kable(sex_counts, col.names  = c("Sex", "Count"))
 
 vars <- c("bill_length_mm", "bill_depth_mm", "flipper_length_mm", "body_mass_g")
 
-par(mfrow = c(2, 2))
 
 for (v in vars) {
   plot(penguins$sex, penguins[[v]],
@@ -85,7 +84,7 @@ for (v in vars) {
 }
 ```
 
-@box-whisker-plots demonstrates the distribution of various features for both male and female penguins.
+@fig-box-whisker-plots demonstrates the distribution of various features for both male and female penguins.
 
 @penguins proposes a method for identifying the gender Otago blue penguins from bill measurements, suggesting that the variations by gender seen here may reflect real patterns.
 
@@ -108,7 +107,7 @@ plot(
  bty = "n")
 ```
 
-@bill-length-body-mass-scatter analyses the relationship between the Bill Length and Body Mass for each sex.
+@fig-bill-length-body-mass-scatter analyses the relationship between the Bill Length and Body Mass for each sex.
 
 
 
