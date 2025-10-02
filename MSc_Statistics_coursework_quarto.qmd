@@ -52,7 +52,7 @@ penguins <- palmerpenguins::penguins
 ```
 
 ```{r, message=FALSE}
-#| label: sex-counts
+#| label: tbl-sex-counts
 #| tbl-cap: "Number of Penguins by Sex"
 sex_counts <- table(penguins$sex)
 knitr::kable(sex_counts, col.names  = c("Sex", "Count"))
@@ -64,7 +64,8 @@ knitr::kable(sex_counts, col.names  = c("Sex", "Count"))
 ```{r, echo=FALSE}
 #| layout-ncol: 2
 #| layout-nrow: 2
-#| label: box-whisker-plots
+#| label: fig-box-whisker-plots
+#| fig-pos: H
 #| fig-cap: "Distributions of Features by Sex"
 #| fig-subcap: 
 #|   - "Bill Length Distribution"
@@ -72,24 +73,28 @@ knitr::kable(sex_counts, col.names  = c("Sex", "Count"))
 #|   - "Flipper Length Distribution"
 #|   - "Body Mass Distribution"
 
-vars <- c("bill_length_mm", "bill_depth_mm", "flipper_length_mm", "body_mass_g")
+plot(penguins$sex, penguins$bill_length_mm, xlab = "", ylab = "Bill Length (mm)", col = c(6,3))
+abline(h = mean(penguins$bill_length_mm, na.rm = TRUE), col = 2, lwd = 2)
 
+plot(penguins$sex, penguins$bill_depth_mm, xlab = "", ylab = "Bill Depth (mm)", col = c(6,3))
+abline(h = mean(penguins$bill_depth_mm, na.rm = TRUE), col = 2, lwd = 2)
 
-for (v in vars) {
-  plot(penguins$sex, penguins[[v]],
-       xlab = "",
-       ylab = gsub("_", " ", v),
-       col = c(6, 3))
-  abline(h = mean(penguins[[v]], na.rm = TRUE), col = 2, lwd = 2)
-}
+plot(penguins$sex, penguins$flipper_length_mm, xlab = "", ylab = "Flipper Length (mm)", col = c(6,3))
+abline(h = mean(penguins$flipper_length_mm, na.rm = TRUE), col = 2, lwd = 2)
+
+plot(penguins$sex, penguins$body_mass_g, xlab = "", ylab = "Body Mass (g)", col = c(6,3))
+abline(h = mean(penguins$body_mass_g, na.rm = TRUE), col = 2, lwd = 2)
+
 ```
+
+
 
 @fig-box-whisker-plots demonstrates the distribution of various features for both male and female penguins.
 
 @penguins proposes a method for identifying the gender Otago blue penguins from bill measurements, suggesting that the variations by gender seen here may reflect real patterns.
 
 ```{r}
-#| label: bill-length-body-mass-scatter
+#| label: fig-bill-length-body-mass-scatter
 #| fig-cap: "Penguin Bill Length vs Body Mass"
 plot(
  x = penguins$bill_length_mm,
