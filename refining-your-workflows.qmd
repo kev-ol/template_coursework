@@ -1,0 +1,611 @@
+---
+title: "Refining your plots, reports and code"
+subtitle: 'MSc in Statistics 2025/26, Imperial College London'
+author: "Zak Varty"
+format:
+  html:
+    toc: true
+    highlight: tango
+    self-contained: true
+  pdf: default
+format-links: false
+bibliography: ref.bib
+---
+
+# Welcome Back! 
+
+## Today's objectives 
+
+1. use R code within Quarto for single-document literate programming tasks
+2. critique and refine default R outputs (such as plots and tables) for reports
+3. understand how and when to show code within reports
+4. use style guides and directory templates to provide a consistent structure across projects
+
+# Literate Programming
+
+## What is literate programming? 
+
+- A paradigm that combines:  
+  - **Code** (that executes)  
+  - **Narrative** (that explains)  
+- Result: documents that are both **human-readable** and **machine-executable**  
+
+
+## Adding code blocks 
+
+
+```{{r}}
+# use :: to access data or functions from within a package 
+penguins <- palmerpenguins::penguins 
+```
+
+
+```{r}
+# use :: to access data or functions from within a package 
+penguins <- palmerpenguins::penguins 
+```
+
+## Unwanted Warnings
+
+Sometimes you get warnings that you don't need to draw attention to
+
+```{r}
+library(palmerpenguins)
+```
+
+## Suppressing Warnings
+
+```{{r}}
+#| warning: false
+library(palmerpenguins)
+```
+
+
+```{r}
+#| warning: false
+library(palmerpenguins)
+```
+
+## Code blocks that show but don't run
+
+Sometimes you want people to do as you say, not as you do. For example, I might want to ask you to install a package but without downloading it every time these notes are rendered.
+
+```{{r}}
+#| eval: false
+install.packages("palmerpengins")
+```
+
+
+```{r}
+#| eval: false
+install.packages("palmerpengins")
+```
+
+
+## Code blocks that run but don't show
+
+```{{r}}
+#| echo: false
+plot(x = penguins$bill_length_mm, 
+     y = penguins$bill_depth_mm)
+```
+
+
+```{r}
+#| echo: false
+plot(x = penguins$bill_length_mm, 
+     y = penguins$bill_depth_mm)
+```
+
+
+## Multiple outputs
+
+When you have multiple objects being printed in a single block, these will often get split up when the document is rendered. 
+
+```{{r}}
+mean(penguins$body_mass_g, na.rm = TRUE)
+median(penguins$body_mass_g, na.rm = TRUE)
+```
+
+```{r}
+mean(penguins$body_mass_g, na.rm = TRUE)
+median(penguins$body_mass_g, na.rm = TRUE)
+```
+
+## Multiple outputs (`hold`)
+
+Top keep this displaying as a single block, you can set `results` to `hold`.
+
+```{{r}}
+#| results: hold
+mean(penguins$body_mass_g, na.rm = TRUE)
+median(penguins$body_mass_g, na.rm = TRUE)
+```
+
+```{r}
+#| results: hold
+mean(penguins$body_mass_g, na.rm = TRUE)
+median(penguins$body_mass_g, na.rm = TRUE)
+```
+
+## Motivating Example 
+
+To give us an example to play with, we could consider the following question: are the average weights of all species of penguin the same?
+
+```{r echo=FALSE}
+plot(x = penguins$species, 
+     y = penguins$body_mass_g, 
+     ylab = "Body mass (g)", 
+     xlab = "Species",
+     col = c(6,3,4))
+abline(h = mean(penguins$body_mass_g,na.rm = TRUE), col = 2, lwd = 2)
+```
+
+## Tables 
+
+How many penguins of each species do we have? 
+
+```{r}
+table(penguins$species)
+```
+
+
+```{r}
+# fit linear model
+mass_lm <- lm(formula = body_mass_g ~ 1 + species, penguins)
+
+# extract coefficients and standard errors
+mass_lm_coefficients <- summary(mass_lm)$coefficients[,1:2]
+mass_lm_coefficients
+```
+
+## Nicer Tables 
+
+### Example 1
+
+```{r}
+species_counts <- table(penguins$species)
+knitr::kable(species_counts, col.names = c("Species", "Count"))
+```
+
+### Example 2
+
+```{r message=FALSE}
+knitr::kable(x = mass_lm_coefficients)
+```
+
+We could set the row names to improve formatting.
+
+```{r message=FALSE}
+row.names(mass_lm_coefficients) <- c("Intercept", "Chinstrap", "Gentoo")
+knitr::kable(x = mass_lm_coefficients)
+```
+
+And then refine the column names.
+
+```{r message=FALSE}
+knitr::kable(
+  x = mass_lm_coefficients, 
+  col.names = c("MLE", "Std. Err"))
+```
+
+Finally, we really don't need to be showing all of those decimal places.
+
+```{r message=FALSE}
+knitr::kable(
+  x = round(mass_lm_coefficients, 2),
+  col.names = c("MLE", "Std. Err"))
+```
+
+
+## A Semi-scripted approach {#sec-semi-scripted}
+
+In report-style assessments you will not usually display your code in the main body of the report. In that case you can still use literate programming but you should: 
+
+- hide all of your code blocks
+- clearly section your code with structural comments
+- include an extra code block at the end of the report (this is in the template by default). 
+
+```{r}
+#######################
+# Question 3
+#######################
+
+# Part A --------------------------
+
+# simulate data
+n <- 100
+x <- rnorm(n, mean = 0, sd = 1)
+y <- rnorm(n, mean = x, sd = abs(x) / 2)
+type <- ifelse(x > 0, "A", "B")
+
+# collect and clean workspace
+sim <- data.frame(x, y, type)
+rm(n, x, y, type)
+```
+
+```{r}
+# Part B --------------------------
+plot(x = sim$x, y = sim$y)
+```
+
+
+# Labeling and Referencing {#sec-labeling}
+
+## Referencing TLDR 
+
+- Label items of markdown using the `{#type-label}` 
+- Label code output with the `#| label: type-label` 
+- Reference either in the main text using `@type-label`
+
+Example reference types: `sec`, `fig`, `tbl`, `eq`.
+
+For full documentation see [Quarto Cross-References](https://quarto.org/docs/authoring/cross-references.html).
+
+## Referencing Sections and Subsections 
+
+``` markdown
+# Labeling and Referencing {#sec-labeling}
+...
+@sec-labeling focuses on labelling and referencing parts of your document.
+```
+
+@sec-labeling focuses on labelling and referencing parts of your document.
+
+
+## Referencing Tables
+
+```{{r}}
+#| label: tbl-palmer
+#| tbl-cap: "Example rows of the Palmer penguin dataset."
+
+library(knitr)
+kable(head(penguins))
+```
+
+```{r}
+#| label: tbl-palmer
+#| tbl-cap: "Example rows of the Palmer penguin dataset."
+
+library(knitr)
+kable(head(penguins)[ ,1:6])
+```
+
+@tbl-palmer gives example data entries from the Palmer penguins dataset. In your reports, all tables should have a caption and be discussed in the main text.
+
+## Referencing Figures 
+
+```{r}
+#| label: fig-sim-data
+#| tbl-cap: "Scatter plot of two simulated datasets."
+plot(x = sim$x, y = sim$y)
+```
+
+Simulating data can be an important tool to understand how models behave in ideal conditions. @fig-sim-data shows an example of some bivariate data, simulated in @sec-semi-scripted.
+
+## Referencing Equations
+
+``` markdown
+$$ e^{\pi i} + 1 = 0.$${#eq-euler}
+```
+
+$$ e^{\pi i} + 1 = 0.$${#eq-euler}
+
+@eq-euler states an elegant and well known result. By convention, equations should only be numbered if they are mentioned in the main text.  
+
+## Citing Sources 
+
+Add a bibliography to your document using the bibliography YAML metadata field. As for LaTeX this should point to a `.bib` file, detailing the sources you will cite. I have provided a small example bibliography file `ref.bib`.
+
+
+``` markdown
+---
+title: "Refining your plots, reports and code"
+bibliography: ref.bib
+---
+```
+
+By default, Pandoc will automatically generate a list of works cited and place it in the document if the style calls for it. It will be placed in a div with the id refs if one exists:
+
+``` markdown 
+### References
+
+::: {#refs}
+:::
+```
+
+To cite books or articles you can use a direct citation to talk about a source such as @box1964analysis within a sentence, or a parenthetical reference to evidence a more general claim [@casella2024statistical] .
+
+Markdown Syntax: 
+
+- `@box1964analysis` gives @box1964analysis;
+- `[@casella2024statistical]` gives [@casella2024statistical].
+
+
+Further information in the [citation documentation](https://quarto.org/docs/authoring/citations.html).
+
+
+# Refining Your Figures
+
+## A basic plot 
+
+```{r}
+plot(x = penguins$bill_length_mm, y = penguins$bill_depth_mm)
+```
+
+## Titles and Subtitles 
+
+```{r}
+plot(
+  x = penguins$bill_length_mm,
+  y = penguins$bill_depth_mm, 
+  main = "Penguin bill dimensions",
+  sub = "Data source: Palmer Penguins")
+```
+## Axis Labels 
+
+```{r}
+plot(
+  x = penguins$bill_length_mm,
+  y = penguins$bill_depth_mm, 
+  main = "Penguin bill dimensions",
+  xlab = "Length (mm)",
+  ylab = "Depth (mm)")
+```
+
+## Resizing Axis Labels
+
+```{r}
+plot(
+  x = penguins$bill_length_mm,
+  y = penguins$bill_depth_mm, 
+  xlab = "Length (mm)",
+  ylab = "Depth (mm)",
+  cex.axis = 1.2, # relative scaling of axis values
+  cex.lab = 1.4)  # relative scaling of axis labels
+```
+
+## Visual Grammar 
+
+### Plotting Chatacters 
+
+```{r}
+plot(
+  x = penguins$bill_length_mm,
+  y = penguins$bill_depth_mm, 
+  main = "Penguin bill dimensions",
+  xlab = "Length (mm)",
+  ylab = "Depth (mm)", 
+  pch = 16)
+```
+
+```{r}
+plot(
+  x = penguins$bill_length_mm,
+  y = penguins$bill_depth_mm, 
+  main = "Penguin bill dimensions",
+  xlab = "Length (mm)",
+  ylab = "Depth (mm)", 
+  pch = 16,
+  col = "blue")
+```
+Over-plotting happens when one point or line in a figure obscures another. We can resolve this issue by picking a transparent colour using `rgb()`.
+
+```{r}
+plot(
+  x = penguins$bill_length_mm,
+  y = penguins$bill_depth_mm, 
+  main = "Penguin bill dimensions",
+  xlab = "Length (mm)",
+  ylab = "Depth (mm)", 
+  pch = 16,
+  col = rgb(0,0,0,0.5))
+```
+
+We could also use colour to encode another aspect of our data visually.
+
+```{r}
+#| fig-cap: "Penguin bill dimensions by species: Adelie (black), Chinstrap (red) and Gentoo (green)."
+
+
+plot(
+  x = penguins$bill_length_mm,
+  y = penguins$bill_depth_mm, 
+  main = "Penguin bill dimensions",
+  xlab = "Length (mm)",
+  ylab = "Depth (mm)", 
+  pch = 16,
+  col = penguins$species)
+```
+
+To make the plot more accessible, we could also alter the plotting character for each species. 
+
+
+```{r}
+#| fig-cap: "Penguin bill dimensions by species: Adelie (black circles), Chinstrap (red triangles) and Gentoo (green diamonds)."
+#| label: fig-penguin-scatter
+plot(
+  x = penguins$bill_length_mm,
+  y = penguins$bill_depth_mm, 
+  main = "Penguin bill dimensions",
+  xlab = "Length (mm)",
+  ylab = "Depth (mm)", 
+  pch = 15 + as.numeric(penguins$species),
+  col = penguins$species)
+```
+
+If we are plotting lines instead, we can also change the line width and type. 
+
+```{r}
+#| fig-cap: Displacement of an undamped simple harmonic oscillator.
+#| label: fig-oscillator
+
+time <- seq(from = 0, to = 100, by = 0.01)
+displacement <- 10 + 5 * sin(time) 
+
+plot(
+  x = time,
+  y = displacement,
+  type = "l",
+  bty = "n",
+  col = "blue",
+  lwd = 2, # line width
+  lty = 2) # dashed line
+
+```
+
+
+## Layering your plots 
+
+We can overlay a line on our previous plot using `lines()`.
+
+```{r}
+plot(
+  x = time,
+  y = displacement,
+  type = "l",
+  bty = "n",
+  col = "blue",
+  lwd = 2, # line width
+  lty = 2) # dashed line
+spring_2 = 10 + 3 * sin(0.25 * time)
+lines(x = time, y = spring_2, lwd = 2)
+```
+
+Similarly, we can add one or more points to the plot by using `points()`.
+
+```{r}
+plot(
+  x = time,
+  y = displacement,
+  type = "l",
+  bty = "n",
+  col = "blue",
+  lwd = 2,
+  lty = 2) 
+lines(x = time, y = spring_2, lwd = 2)
+points(x = c(2, 10, 18, 26) * pi, y = rep(13, 4), pch = 16, col = "red")
+```
+
+Finally, we might want to add a legend layer to our earlier scatterplot in @fig-penguin-scatter. 
+
+```{r}
+#| fig-cap: "Penguin bill dimensions by species."
+plot(
+  x = penguins$bill_length_mm,
+  y = penguins$bill_depth_mm, 
+  col = penguins$species,
+  pch = 15 + as.numeric(penguins$species),
+  xlim = c(29,70), # extend plotting area to make room for legend
+  ylim = c(12,23),
+  main = "Penguin bill dimensions",
+  xlab = "Length (mm)",
+  ylab = "Depth (mm)",
+  bty = "n")
+legend(
+  "bottomright",
+  title = "Species",
+  legend = c("Adelie", "Chinstrap", "Gentoo"),
+  pch = 16:18,
+  col = 1:3,
+  bty = "n")
+```
+
+
+## Combining your plots 
+
+```{{r}}
+#| layout-ncol: 2
+#| label: fig-example-plots
+#| fig-cap: "Two example plots relating to the Gaussian distribution."
+#| fig-subcap: 
+#|   - "Gaussian distribution"
+#|   - "Gaussian QQ-plot"
+
+x <- seq(from = -3, to = 3,by = 0.01)
+density <- dnorm(x, mean = 0, sd = 1)
+
+plot(
+  x = x,
+  y = density,
+  bty = "n",
+  cex.axis = 1.4,
+  cex.lab = 1.4,
+  type = "l",
+  lwd = 2)
+
+y <- rnorm(n = 100, mean = 3, sd = 2)
+qqnorm(y, cex.axis = 1.4, cex.lab = 1.4, main = "")
+```
+
+```{r}
+#| layout-ncol: 2
+#| label: fig-example-plots
+#| fig-cap: "Two example plots relating to the Gaussian distribution."
+#| fig-subcap: 
+#|   - "Gaussian distribution"
+#|   - "Gaussian QQ-plot"
+
+x <- seq(from = -3, to = 3,by = 0.01)
+density <- dnorm(x, mean = 0, sd = 1)
+
+plot(
+  x = x,
+  y = density,
+  bty = "n",
+  cex.axis = 1.4,
+  cex.lab = 1.4,
+  type = "l",
+  lwd = 2)
+
+y <- rnorm(n = 100, mean = 3, sd = 2)
+qqnorm(y, cex.axis = 1.4, cex.lab = 1.4, main = "")
+```
+
+@fig-example-plots shows how we can create multiple plots within a code block and then have these appear within the same figure as sub-figures. A probability density function is shown in @fig-example-plots-1, while a quantile-quantile plot is shown in @fig-example-plots-2.
+
+
+
+## What goes where? Tiles, Captions and Descriptions 
+
+
+| Aspect          | Plot Title                      | Figure Caption                                      |
+|-----------------|---------------------------------|-----------------------------------------------------|
+| Location        | Inside or above the plot        | Outside the plot                                    |
+| Purpose         | Quick context for the plot      | Formal description with interpretive context        |
+| Referencing     | Rarely referenced in the text   | Commonly referenced (e.g., “see Figure 1”)          |
+
+Where a figure or table is mentioned in the main text you should explain _how_ it supports any claims that you are making. 
+
+> BAD: @fig-penguin-scatter demonstrates Simpson's paradox.
+
+> GOOD: @fig-penguin-scatter shows that while there appears to be a positive association between bill length and depth _within_ each species, this association disappears or perhaps reverses when considering all species together. This is an example of Simpson's paradox [simpson1951contingency].
+
+## Useful Resources 
+
+- Imperial Coursework Report Template
+- [Quarto documentation](https://quarto.org/docs/guide/)
+- [Make a reprex, please](https://youtu.be/G5Nm-GpmrLw?si=-GkQa9hK1yWiW37-)
+- Telling Stories With Data 
+  - [3 - Reproducilbe workflows](https://tellingstorieswithdata.com/03-workflow.html)
+- R style guides [Google](https://google.github.io/styleguide/Rguide.html), [Tidyverse](https://style.tidyverse.org/).
+
+- Effective Data Science
+  - [1 - Organising your work](https://eds-notes.zakvarty.com/101-workflows-organising-your-work)
+  - [8 - Exploratory data analysis](https://eds-notes.zakvarty.com/302-edav-analysis)
+  - [9 - Data visualisation](https://eds-notes.zakvarty.com/303-edav-visualisation)
+- [The TidyTuesday Cookbook](https://nrennie.rbind.io/art-of-viz/) 
+
+# Review 
+
+1. use R code within Quarto for single-document literate programming tasks
+2. critique and refine default R outputs (such as plots and tables) for reports
+3. understand how and when to show code within reports
+4. use style guides and directory templates to provide a consistent structure across projects
+
+
+
+### References
+
+::: {#refs}
+:::

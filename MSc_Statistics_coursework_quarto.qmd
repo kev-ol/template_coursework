@@ -1,7 +1,7 @@
 ---
-title: "Coursework Template"
+title: "Reproduction of Palmer Penguins Dataset Analysis"
 subtitle: 'MSc in Statistics 2025/26, Imperial College London'
-author: "Kevin O'Loughlin"
+author: "Kevin O'Loughlin. 06059955"
 format:
   html:
     toc: true
@@ -39,45 +39,14 @@ require(kableExtra)
 # Put any library imports and other preamble here.
 ```
 
-This Rmarkdown document is intended to provide a basic template that you may use throughout the course, and to introduce you to basic functionality of the open-source bookdown R package for writing Rmarkdown documents [@xie2016bookdown].
+```{r}
+#| warning: false
+library(palmerpenguins)
 
-Please note:
+# use :: to access data or functions from within a package 
+penguins <- palmerpenguins::penguins
+```
 
-- Rmarkdown syntax for the title and document style;
-- bookdown syntax to label and reference equations;
-- bookdown syntax to referencing literate and provide a bib file;
-- kable syntax to build clean and clear tables that can be referenced;
-- Rmarkdown inline functions to collect and print all code used.
-
-# Sampling from the Cauchy distribution
-
-In this question we seek to generate samples from the standard Cauchy distribution, with pdf given by
-\begin{equation}
-  p(x) = \frac{1}{\pi (1 + x^2)}, \quad x \in \mathbb{R}.
-  (\#eq:1)
-\end{equation}
-The cdf associated with \@ref(eq:1) is given by
-\begin{equation}
-  F(x) = \frac{1}{\pi}\arctan(x) + \frac{1}{2}.
-  (\#eq:2)
-\end{equation}
-
-**Part a.**  We apply the inversion method as described by @graham2013stochastic. We first compute the generalised inverse of the cdf \@ref(eq:2).  To this end, let $y\in [0,1]$, then
-
-\begin{align}
-    y &= F(x), \quad \iff (\#eq:3a) \\
-    y &= \frac{1}{\pi}\arctan(x) + \frac{1}{2} \quad \iff \\
-    y-\frac{1}{2}  &= \frac{1}{\pi}\arctan(x)  \quad \iff \\
-    \pi\left(y-\frac{1}{2}\right)  &= \arctan(x)  \quad \iff \\
-    x &= \tan\left(\pi\left(y-\frac{1}{2}\right)\right). 
-\end{align}
-
-By the inversion method [@graham2013stochastic], if $Y \sim U[0,1]$, then 
-
-\begin{equation}
-  X = \tan\left(\pi\left(Y-\frac{1}{2}\right)\right),
-  (\#eq:4)
-\end{equation}
 
 ```{r, echo=FALSE}
 
