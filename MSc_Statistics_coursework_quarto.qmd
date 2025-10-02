@@ -45,7 +45,40 @@ library(palmerpenguins)
 
 # use :: to access data or functions from within a package 
 penguins <- palmerpenguins::penguins
+colnames(penguins)
 ```
+
+```{r, message=FALSE}
+sex_counts <- table(penguins$sex)
+knitr::kable(sex_counts, col.names  = c("Sex", "Count"))
+```
+
+
+```{r, echo=FALSE}
+#| layout-ncol: 2
+#| layout-nrow: 2
+#| label: box_whisker-plots
+#| fig-cap: "Distributions of Features by Sex"
+#| fig-subcap: 
+#|   - "Bill Length Distribution"
+#|   - "Bill Depth Distribution"
+#|   - "Flipper Length Distribution"
+#|   - "Body Mass Distribution"
+
+vars <- c("bill_length_mm", "bill_depth_mm", "flipper_length_mm", "body_mass_g")
+
+par(mfrow = c(2, 2))
+
+for (v in vars) {
+  plot(penguins$sex, penguins[[v]],
+       xlab = "Sex",
+       ylab = gsub("_", " ", v),
+       col = c(6, 3))
+  abline(h = mean(penguins[[v]], na.rm = TRUE), col = 2, lwd = 2)
+}
+```
+
+
 
 
 ```{r, echo=FALSE}
